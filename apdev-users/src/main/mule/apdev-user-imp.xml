@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="b94393bf-aa7c-4219-97e8-3f4672735045" >
+		<db:oracle-connection host="localhost" user="xtel" password="xtel" />
+	</db:config>
+	<flow name="getUsers" doc:id="e1675f3b-e947-4ed9-bc65-e1a5f424a42c" >
+		<logger level="INFO" doc:name="Logger" doc:id="7ac56cb5-df50-43e9-8eb7-055c146fcda5" message="Connecting to Database..."/>
+		<db:select doc:name="Select" doc:id="cc845203-9134-4b1e-98a8-bca65b67afcc" config-ref="Database_Config">
+			<db:sql >select * from userd</db:sql>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="03a96411-65e7-4d76-babd-bfafbcd02c6a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+	
+---
+	payload map ( payload01 , indexOfPayload01) -> {
+	username: payload01.UNAME default "",
+	fullname: payload01.FNAME default "",
+	age: payload01.AGE default 0,
+	gender: payload01.gender default "",
+	dateRegistered: payload01.DATEREG default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="bbf580ca-b9e0-4e34-adcf-f94edf4e5bc2" message="#[payload + 'end of script' + now()]"/>
+	</flow>
+	<flow name="getUsersByID" doc:id="807203e1-483c-4e2a-85b2-95be1c5ce653" >
+		<logger level="INFO" doc:name="Logger" doc:id="e67b49da-0d55-45ba-85c9-d845e4d569b6" message="Connecting to Database..." />
+		<db:select doc:id="ab42f21b-f014-4e3e-a6a6-f65c6cf1901f" doc:name="Select" config-ref="Database_Config">
+			<db:sql >select * from userd
+where userid = :uid</db:sql>
+			<db:input-parameters ><![CDATA[#['uid': attributes.uriParams.userid]]]></db:input-parameters>
+		</db:select>
+		<ee:transform doc:name="Transform Message" doc:id="4f4f806c-a305-437f-9942-2f0dcb0aa3e6">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+	
+---
+	payload map ( payload01 , indexOfPayload01) -> {
+	username: payload01.UNAME default "",
+	fullname: payload01.FNAME default "",
+	age: payload01.AGE default 0,
+	gender: payload01.gender default "",
+	dateRegistered: payload01.DATEREG default ""
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="1bba14e8-b3be-41aa-b7bd-304dfe15ced1" message="#[payload + 'end of script' + now()]" />
+	</flow>
+</mule>

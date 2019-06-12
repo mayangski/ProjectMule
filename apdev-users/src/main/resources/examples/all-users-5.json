@@ -1,0 +1,22 @@
+[{
+	"uId": 1,
+	"username": "john123",
+	"fullname": "John White Smith",
+	"age": 23,
+	"gender": "M",
+	"dateRegistered": "20-08-2012"
+},{
+	"uId": 1,
+	"username": "jackpeters",
+	"fullname": "Jack Peters",
+	"age": 25,
+	"gender":"M",
+	"dateRegistered": "25-09-2014"
+},{
+	"uId": 1,
+	"username": "jenniesummers",
+	"fullname": "Jennie Summers",
+	"age": 24,
+	"gender": "F",
+	"dateRegistered": "20-08-2013"
+}]

@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+    <http:listener-config name="users-info-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="8085" />
+    </http:listener-config>
+    <apikit:config name="users-info-api-config" raml="users-info-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" headersStrictValidation="true">
+	</apikit:config>
+    <validation:config name="Validation_Config" doc:name="Validation Config" doc:id="d0b10539-a6d6-40c7-a14e-89348604473f"/>
+	<validation:config name="Validation_Config1" doc:name="Validation Config" doc:id="f884bb00-a459-403d-9207-e9e62010e3db" />
+	<validation:config name="Validation_Config2" doc:name="Validation Config" doc:id="bd336238-51b0-45b3-9adc-38ed47497420" />
+	<flow name="users-info-api-main">
+        <http:listener config-ref="users-info-api-httpListenerConfig" path="/api/*" doc:id="3dafdf6d-32de-4c58-84f3-7e02e82ebcf3">
+            <redelivery-policy />
+			<http:error-response>
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+		<apikit:router config-ref="users-info-api-config" />
+		<error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST" enableNotifications="true" logException="true">
+				<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="d7fb4061-8d4c-4a3e-a580-70b9950493ce">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND" enableNotifications="true" logException="true">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="be215d9f-44d3-4d6c-affe-bc571e49ca20">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED" enableNotifications="true" logException="true">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="7a7f2699-b1c2-43c2-8cff-f870d558f4e4">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="d5dfb020-f66b-4a6a-8160-7c0bc130c1b0">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="01017451-0c8e-4a8f-815c-74d11d87a238">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[415]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED" enableNotifications="true" logException="true">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="7e540c62-477f-4810-b752-03f826ea9f41">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[501]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="users-info-api-console">
+        <http:listener config-ref="users-info-api-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="users-info-api-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND" enableNotifications="true" logException="true">
+                <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd" doc:id="74e914b0-585c-4933-82e0-a260f0fa4c0b">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="get:\user:users-info-api-config">
+		<validation:matches-regex doc:name="Matches regex" doc:id="b397e60d-0686-4ee4-b9d6-dc03d930ac21" config-ref="Validation_Config" value="#[attributes.headers.Authorization]" regex="^[a-zA-Z]+$" caseSensitive="false" message="Name can not contain Integer value and other special charectors"/>
+		<flow-ref doc:name="Flow Reference" doc:id="b20bd1ca-6b95-4568-a10a-8c6648a985b5" name="getUsers"/>
+    </flow>
+    <flow name="get:\user\(userid):users-info-api-config">
+		<validation:matches-regex doc:name="Matches regex" doc:id="177fbd19-9083-4059-81ac-66c176105ac0" config-ref="Validation_Config" value="#[attributes.headers.Authorization]" regex="^[a-zA-Z]+$" caseSensitive="false" message="Name can not contain Integer value and other special charectors" />
+		<flow-ref doc:name="Flow Reference" doc:id="0f465a98-ee13-49a3-9af6-6a0faf24fdf6" name="getUsersByID"/>
+    </flow>
+    <flow name="post:\user\(userid):users-info-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="6bc98b48-2f76-4d66-b073-d01ba09efde9" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[attributes.uriParams.userid]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="70210f80-68fc-432c-99b1-5303ae8541cd" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	message: "added"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+    </flow>
+	<flow name="postUsers" doc:id="3d81592b-4a4b-4584-a098-c7a51fab6300" >
+		<validation:matches-regex doc:name="Matches regex" doc:id="b7679a79-837b-4030-91b9-c4beab763897" config-ref="Validation_Config" value="#[attributes.headers.Authorization]" regex="^[a-zA-Z]+$" caseSensitive="false" message="Name can not contain Integer value and other special charectors" />
+		<flow-ref doc:name="Flow Reference" doc:id="6046d657-81b8-47aa-8e26-111f6af78d26" name="post:\user\(userid):users-info-api-config" />
+	</flow>
+</mule>

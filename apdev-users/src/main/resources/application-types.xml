@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="type" format="json">
+      <types:shape format="weave" example="examples/all-users-5.json"><![CDATA[%dw 2.0
+
+type type = Array<{|  uId: Number {"typeId": "int"},   username: String,   fullname: String,   age: Number {"typeId": "int"},   gender: String,   dateRegistered: String|}> {"example": "[{\"uId\":1,\"username\":\"john123\",\"fullname\":\"John White Smith\",\"age\":23,\"gender\":\"M\",\"dateRegistered\":\"20-08-2012\"},{\"uId\":1,\"username\":\"jackpeters\",\"fullname\":\"Jack Peters\",\"age\":25,\"gender\":\"M\",\"dateRegistered\":\"25-09-2014\"},{\"uId\":1,\"username\":\"jenniesummers\",\"fullname\":\"Jennie Summers\",\"age\":24,\"gender\":\"F\",\"dateRegistered\":\"20-08-2013\"}]"}
+
+]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#5ab0d0c2-624b-48d8-85ea-89c8cb68885c">
+    <types:processor-declaration>
+      <types:output-event>
+        <types:message>
+          <types:payload type="type"/>
+        </types:message>
+      </types:output-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#03a96411-65e7-4d76-babd-bfafbcd02c6a"/>
+</types:mule>

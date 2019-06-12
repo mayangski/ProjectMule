@@ -1,0 +1,72 @@
+#%RAML 1.0
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/79538725-3dd5-4430-af45-04a62b6cba12/ # 
+version: v1
+title: UsersInfo
+
+traits:
+  hasheader:
+    headers:
+      Authorization:
+        type: string
+        required: true
+        minLength: 16
+        maxLength: 16   
+  
+   
+types:
+  dataTyp:
+    properties:
+      "userid": number
+      "uName": string
+      "fName": string
+      "age": number
+      "gender": string
+      "dateReg": string
+
+      
+/user:
+  get:
+    is: ["hasheader"]
+    responses:
+     200:
+      body:
+       application/json:
+        example: |
+          [{"userid":1,"username": "john123","fullname": "John White Smith","age": 23,"gender": "male","dateRegistered": "20-08-2012"},
+          {"userid":2,"username": "jackpeters","fullname": "Jack Peters","age": 25,"gender": "male","dateRegistered": "25-09-2014"},
+          {"userid":3,"username": "jenniesummers","fullname": "Jennie Summers","age": 24,"gender": "female","dateRegistered": "20-08-2013"}
+          ]
+
+  /{userid}:
+    get:
+      is: ["hasheader"]
+      responses:
+       200:
+         body:
+          application/json:
+           example: |
+             [{"userid":1,"username": "john123","fullname": "John White Smith","age": 23,"gender": "male","dateRegistered": "20-08-2012"},
+             {"userid":2,"username": "jackpeters","fullname": "Jack Peters","age": 25,"gender": "male","dateRegistered": "25-09-2014"},
+             {"userid":3,"username": "jenniesummers","fullname": "Jennie Summers","age": 24,"gender": "female","dateRegistered": "20-08-2013"}
+             ]
+       404:
+        body:
+          application/json:
+            example: |
+              {"message":"no user found"}
+    post:
+      responses:
+        201:
+          body:
+            application/json:
+              example:  |
+                {"message": "Flight added (but not really)"}
+                
+
+      
+
+
+   
+
+
+
